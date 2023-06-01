@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CustomerProfile extends StatefulWidget {
   const CustomerProfile({Key? key}) : super(key: key);
@@ -279,16 +280,25 @@ class _CustomerProfileState extends State<CustomerProfile> {
 
   Future<void> _fetchUserDetails() async {
     try {
-      final querySnapshot =
-          await FirebaseFirestore.instance.collection('users').get();
-      if (querySnapshot.docs.isNotEmpty) {
-        final userData = querySnapshot.docs.first.data();
-        _fullNameController.text = userData['fullName'] ?? '';
-        _phoneNumberController.text = userData['phoneNumber'] ?? '';
-        _addressController.text = userData['address'] ?? '';
-        _stateController.text = userData['state'] ?? '';
-        _districtController.text = userData['district'] ?? '';
-        _pincodeController.text = userData['pincode'] ?? '';
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String userId = user.uid;
+
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('userId', isEqualTo: userId)
+            .limit(1)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          final userData = querySnapshot.docs.first.data();
+          _fullNameController.text = userData['fullName'] ?? '';
+          _phoneNumberController.text = userData['phoneNumber'] ?? '';
+          _addressController.text = userData['address'] ?? '';
+          _stateController.text = userData['state'] ?? '';
+          _districtController.text = userData['district'] ?? '';
+          _pincodeController.text = userData['pincode'] ?? '';
+        }
       }
     } catch (e) {
       print('Error fetching user details: $e');

@@ -6,6 +6,10 @@ import 'signup_page.dart';
 import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+String email = ''; // Variable to store the email
+String name = ''; // Variable to store the name
+String password = ''; // Variable to store the password
+
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
 
@@ -41,7 +45,7 @@ class _LoginpageState extends State<Loginpage> {
           fontSize: 16.0);
     } else {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => homepage()));
+          context, MaterialPageRoute(builder: (context) => Homepage()));
     }
   }
 

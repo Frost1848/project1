@@ -27,7 +27,7 @@ class _splashscreenState extends State<splashscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color.fromARGB(255, 8, 8, 8),
       body: const Center(
           child: Image(image: AssetImage('assets/splash_screen_logo.png'))),
     );

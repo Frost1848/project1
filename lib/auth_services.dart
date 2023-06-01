@@ -1,9 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+String email = ''; // Variable to store the email
+String name = ''; // Variable to store the name
+String password = ''; // Variable to store the password
+
 class AuthServices {
   static final _firebaseAuth = FirebaseAuth.instance;
   static final _firestore = FirebaseFirestore.instance;
+  Future<String> getUserID() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final User? user = _auth.currentUser;
+    final String userId = user?.uid ?? '';
+    return userId;
+  }
 
   static Future<String> signup({
     required String email,

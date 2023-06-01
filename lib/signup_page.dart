@@ -30,7 +30,7 @@ class SignUp extends StatelessWidget {
       print(res);
       return;
     }
-    Get.to(homepage());
+    Get.to(Homepage());
   }
 
   @override

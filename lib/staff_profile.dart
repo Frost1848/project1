@@ -57,7 +57,7 @@ class _StaffProfileState extends State<StaffProfile> {
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => homepage()));
+                    MaterialPageRoute(builder: (context) => Homepage()));
               },
               child: Text('SUBMIT'),
               style: ElevatedButton.styleFrom(

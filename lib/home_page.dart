@@ -1,16 +1,22 @@
+import 'dart:io';
+import 'package:akary/Bikes_Page.dart';
+import 'package:akary/Cars_Page.dart';
 import 'package:akary/auth_services.dart';
+import 'package:akary/cars.dart';
+import 'package:akary/customer_profile.dart';
 import 'package:akary/signup_page.dart';
 import 'package:akary/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class homepage extends StatefulWidget {
-  homepage({super.key});
+class Homepage extends StatefulWidget {
+  Homepage({Key? key}) : super(key: key);
 
   @override
-  State<homepage> createState() => _homepageState();
+  State<Homepage> createState() => _HomepageState();
 }
 
-class _homepageState extends State<homepage> {
+class _HomepageState extends State<Homepage> {
   List<String> _dataList = [];
   List<String> _searchResult = [];
   String? name;
@@ -18,6 +24,8 @@ class _homepageState extends State<homepage> {
   bool _isLoading = true;
 
   TextEditingController _searchController = TextEditingController();
+
+  File? _profileImage; // Variable to hold the uploaded image file
 
   getUserName() async {
     setState(() {
@@ -40,23 +48,41 @@ class _homepageState extends State<homepage> {
     getUserName();
   }
 
+  // Method to open file picker and select an image file
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
-          shadowColor: Colors.black,
-          foregroundColor: Colors.black,
-          title: TextField(
-            controller: _searchController,
-            cursorColor: Colors.white,
-            decoration: InputDecoration(
-              hintText: '  Search cars',
+        shadowColor: Colors.black,
+        foregroundColor: Color.fromARGB(255, 133, 15, 15),
+        title: TextField(
+          style: TextStyle(color: Colors.white),
+          controller: _searchController,
+          cursorColor: Colors.white,
+          decoration: InputDecoration(
+            hintText: '  Search cars',
+            hintStyle: TextStyle(
+              fontSize: 20.0,
+              color: Color.fromARGB(255, 112, 110, 110),
             ),
-            onChanged: onSearchTextChanged,
           ),
-          backgroundColor: Color.fromARGB(255, 15, 127, 101)),
+          onChanged: onSearchTextChanged,
+        ),
+        backgroundColor: Color.fromARGB(255, 6, 3, 7),
+      ),
       drawer: Drawer(
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(255, 108, 23, 23),
         child: _isLoading
             ? const Center(
                 child: CircularProgressIndicator(),
@@ -66,17 +92,26 @@ class _homepageState extends State<homepage> {
                 children: <Widget>[
                   UserAccountsDrawerHeader(
                     decoration:
-                        BoxDecoration(color: Color.fromARGB(255, 15, 127, 101)),
+                        BoxDecoration(color: Color.fromARGB(255, 30, 2, 2)),
                     accountName: Text(name!),
                     accountEmail: Text(email!),
-                    currentAccountPicture: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        name![0] + name![name!.indexOf(' ') + 1],
-                        style: TextStyle(
-                          fontSize: 40.0,
-                          color: Colors.black,
-                        ),
+                    currentAccountPicture: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        backgroundImage: _profileImage != null
+                            ? FileImage(_profileImage!)
+                                as ImageProvider<Object>?
+                            : AssetImage('assets/default_profile.jpg'),
+                        child: _profileImage == null
+                            ? Text(
+                                name![0] + name![name!.indexOf(' ') + 1],
+                                style: TextStyle(
+                                  fontSize: 40.0,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : null,
                       ),
                     ),
                   ),
@@ -84,33 +119,36 @@ class _homepageState extends State<homepage> {
                     leading: Icon(Icons.home),
                     title: Text('Home'),
                     onTap: () {
-                      // TODO: NavigNavigator.pop(context); // close the drawer
+                      Navigator.pop(context); // close the drawer
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => homepage()),
+                        MaterialPageRoute(builder: (context) => Homepage()),
                       );
                     },
                   ),
-                  // ListTile(
-                  //     leading: Icon(Icons.person),
-                  //     title: Text('Profile'),
-                  //     onTap: () {
-                  //       Navigator.push;
-                  //       {
-                  //         // TODO: Logout tNavigator.pop(context); // close the drawer
-                  //         // Navigator.push(
-                  //         //   context,
-                  //         //   MaterialPageRoute(builder: (context) => LoginScreen()),
-                  //         // );
-                  //       }
-                  //       ;
-                  //     }),
-                  Divider(),
+                  const Divider(
+                    color: Color.fromARGB(255, 27, 6, 79),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('Profile'),
+                    onTap: () {
+                      Navigator.pop(context); // close the drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CustomerProfile()),
+                      );
+                    },
+                  ),
+                  Divider(
+                    color: Color.fromARGB(255, 38, 13, 97),
+                  ),
                   ListTile(
                     leading: Icon(Icons.exit_to_app),
                     title: Text('Logout'),
                     onTap: () {
-                      // TODO: Logout tNavigator.pop(context); // close the drawer
+                      Navigator.pop(context); // close the drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => Loginpage()),
@@ -120,23 +158,48 @@ class _homepageState extends State<homepage> {
                 ],
               ),
       ),
-      body: _searchResult.length != 0 || _searchController.text.isNotEmpty
-          ? ListView.builder(
-              itemCount: _searchResult.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_searchResult[index]),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CarsPage()),
                 );
               },
-            )
-          : ListView.builder(
-              itemCount: _dataList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_dataList[index]),
-                );
-              },
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Cars(),
+              ),
             ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BikesPage()),
+                );
+              },
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Bikes(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -158,6 +221,69 @@ class _homepageState extends State<homepage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Container Demo',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Container Demo'),
+        ),
+        body: Center(
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Cars(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Cars extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.bottomLeft,
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        shape: BoxShape.circle,
+      ),
+      child: CircleAvatar(
+        radius: 400,
+        backgroundImage: AssetImage(
+            'assets/car.jpg'), // Replace with your car image asset path
+        backgroundColor: Color.fromARGB(244, 245, 1, 1),
+      ),
+    );
+  }
+}
+
+class Bikes extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.topCenter,
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        shape: BoxShape.circle,
+      ),
+      child: CircleAvatar(
+        radius: 400,
+        backgroundImage: AssetImage(
+            'assets/bike.jpg'), // Replace with your car image asset path
+        backgroundColor: Color.fromARGB(244, 245, 1, 1),
+      ),
+    );
   }
 }
 
